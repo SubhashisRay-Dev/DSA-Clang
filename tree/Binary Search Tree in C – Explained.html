@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Binary Search Tree in C – Explained</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1d2433;--mut:#5d6679;--ac:#4f46e5;--ac2:#0d9488;--bd:#dfe3ee;--code:#0f172a;--codetx:#e2e8f0;--warn:#b45309;--warnbg:#fef3c7;--node:#e0e7ff;--hl:#f59e0b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1220;--card:#171d30;--tx:#e6e9f4;--mut:#98a2bb;--ac:#818cf8;--ac2:#2dd4bf;--bd:#2a3250;--code:#0a0e1a;--warn:#fbbf24;--warnbg:#3a2c0a;--node:#2b3566}}
+:root[data-theme="dark"]{--bg:#0e1220;--card:#171d30;--tx:#e6e9f4;--mut:#98a2bb;--ac:#818cf8;--ac2:#2dd4bf;--bd:#2a3250;--code:#0a0e1a;--warn:#fbbf24;--warnbg:#3a2c0a;--node:#2b3566}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:900px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(1.6rem,5vw,2.3rem);margin:.2em 0;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent;animation:fade .8s}
+h2{margin:1.8em 0 .5em;font-size:1.3rem}
+p.sub{color:var(--mut);margin-top:0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:12px 0}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+details.fn{background:var(--card);border:1px solid var(--bd);border-radius:14px;margin:10px 0;overflow:hidden;animation:fade .5s both}
+details.fn>summary{cursor:pointer;padding:14px 16px;font-weight:600;list-style:none;display:flex;gap:10px;align-items:center}
+details>summary::-webkit-details-marker{display:none}
+details.fn>summary::before,details.pt>summary::before{content:"▸";color:var(--ac);transition:transform .25s;display:inline-block}
+details[open]>summary::before{transform:rotate(90deg)}
+summary small{color:var(--mut);font-weight:400;margin-left:auto}
+details[open]>.body{animation:fade .35s}
+.body{padding:0 16px 16px}
+pre{background:var(--code);color:var(--codetx);padding:12px;border-radius:10px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;margin:8px 0}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em}
+details.pt{border:1px solid var(--bd);border-radius:10px;margin:8px 0}
+details.pt>summary{cursor:pointer;padding:8px 12px;display:flex;gap:8px;align-items:baseline}
+details.pt>summary code{color:var(--ac)}
+details.pt>div{padding:0 12px 10px;color:var(--tx)}
+.warn{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:.92rem}
+.viz{overflow-x:auto;border:1px dashed var(--bd);border-radius:12px;min-height:150px;background:var(--bg)}
+svg{display:block;margin:0 auto;min-width:300px}
+.edge{stroke:var(--mut);stroke-width:2;animation:fade .4s}
+.nd{transition:transform .6s cubic-bezier(.3,1.3,.5,1)}
+.nd circle{fill:var(--node);stroke:var(--ac);stroke-width:2;transition:fill .25s,stroke .25s}
+.nd text{fill:var(--tx);text-anchor:middle;dominant-baseline:central;font-weight:700;font-size:14px}
+.nd.hl circle{fill:var(--hl);stroke:var(--hl)}
+.nd.hl text{fill:#111}
+.nd.pop circle{animation:pop .5s}
+@keyframes pop{0%{r:0}70%{r:24}100%{r:19}}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;align-items:center}
+button,input{font:inherit;border-radius:9px;border:1px solid var(--bd);padding:7px 12px;background:var(--card);color:var(--tx)}
+input{width:90px}
+button{cursor:pointer;transition:transform .15s,background .2s}
+button:hover{background:var(--ac);color:#fff;transform:translateY(-2px)}
+button:disabled{opacity:.5;pointer-events:none}
+.out{font-family:ui-monospace,monospace;min-height:1.6em;color:var(--ac2);word-break:break-word}
+.stats{color:var(--mut);font-size:.9rem}
+.theme{float:right}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:6px 0}
+.seg button{border:0;border-radius:0}
+.seg button.on{background:var(--ac);color:#fff}
+#panel{display:none;grid-template-columns:230px 1fr;gap:12px;align-items:start}
+body.pm #panel{display:grid}
+body.pm #fns{display:none}
+#nav{display:flex;flex-direction:column;gap:6px;position:sticky;top:8px}
+#nav button{text-align:left}
+#nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+#pc{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;min-width:0;animation:fade .4s}
+#pc h3{margin:0 0 6px}
+.full{margin-top:12px}
+.warn.ok{background:color-mix(in srgb,var(--ac2) 18%,var(--card));color:var(--tx)}
+@media(max-width:640px){#panel{grid-template-columns:1fr}#nav{flex-direction:row;overflow-x:auto;position:static}#nav button{white-space:nowrap}}
+</style></head>
+<body><main>
+<button class="theme" onclick="tg()" aria-label="Toggle theme">◐</button>
+<h1>Binary Search Tree in C</h1>
+<p class="sub">Your menu-driven program, explained function by function. Tap any dropdown to open it. Try the live tree first.</p>
+
+<h2>🌳 Live tree</h2>
+<div class="card">
+<div class="ctl">
+<input id="v" type="number" placeholder="value">
+<button onclick="ins()">Insert</button>
+<button onclick="rnd()">Random 7</button>
+<button onclick="trav('pre')">Preorder</button>
+<button onclick="trav('in')">Inorder</button>
+<button onclick="trav('post')">Postorder</button>
+<button onclick="ext('min')">Smallest</button>
+<button onclick="ext('max')">Largest</button>
+<button onclick="mir()">Mirror</button>
+<button onclick="clr()">Delete tree</button>
+</div>
+<div class="viz"><svg id="svg" viewBox="0 0 300 150" width="100%" height="150"></svg></div>
+<div class="out" id="out">Output appears here…</div>
+<div class="stats" id="st"></div>
+</div>
+
+<h2>📖 Code walkthrough</h2>
+<div class="seg" role="group" aria-label="Layout"><button id="b-in" class="on" onclick="setLayout('inline')">Inline</button><button id="b-pa" onclick="setLayout('panel')">Panel</button></div>
+<p class="sub" style="margin:0 0 6px">Inline: dropdowns open in place. Panel: pick a function on the left and read it on the right.</p>
+<div id="fns"></div>
+<div id="panel"><div id="nav"></div><div id="pc"></div></div>
+
+<h2>🧾 Complete program</h2>
+<details class="fn full" open><summary>Full source: BST with menu<small>bug-free version</small></summary>
+<div class="body"><div class="warn" id="vnote"></div>
+<div class="ctl"><button onclick="cp(this)">Copy code</button></div>
+<pre id="fullcode"></pre></div></details>
+</main>
+<script type="text/plain" id="fix">#include <stdio.h>
+#include <stdlib.h>   /* FIX: malloc/free live here. <conio.h> and <malloc.h> are not portable, so they are removed */
+
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+struct node *tree = NULL;   /* FIX: root starts as NULL, so the broken create_tree() is not needed */
+int mirrored = 0;           /* FIX: remembers whether left/right are currently swapped */
+
+struct node *insertElement(struct node *, int);
+void preorderTraversal(struct node *);
+void inorderTraversal(struct node *);
+void postorderTraversal(struct node *);
+struct node *findSmallestElement(struct node *);
+struct node *findLargestElement(struct node *);
+struct node *deleteElement(struct node *, int);
+struct node *mirrorImage(struct node *);
+int totalNodes(struct node *);
+int totalExternalNodes(struct node *);
+int totalInternalNodes(struct node *);
+int Height(struct node *);
+struct node *deleteTree(struct node *);
+int goLeft(int, int);
+int readInt(const char *, int *);
+
+int main(void)
+{
+    int option = 0, val, before, status;   /* FIX: option is initialised */
+    struct node *ptr;
+
+    while (option != 14)
+    {
+        printf("\n ******MAIN MENU******* \n");
+        printf("\n 1. Insert Element");
+        printf("\n 2. Preorder Traversal");
+        printf("\n 3. Inorder Traversal");
+        printf("\n 4. Postorder Traversal");
+        printf("\n 5. Find the smallest element");
+        printf("\n 6. Find the largest element");
+        printf("\n 7. Delete an element");
+        printf("\n 8. Count the total number of nodes");
+        printf("\n 9. Count the total number of external nodes");
+        printf("\n 10. Count the total number of internal nodes");
+        printf("\n 11. Determine the height of the tree");
+        printf("\n 12. Find the mirror image of the tree");
+        printf("\n 13. Delete the tree");
+        printf("\n 14. Exit");
+
+        status = readInt("\n\n Enter your option : ", &option);
+        if (status == -1) { option = 14; continue; }   /* FIX: stop cleanly at end of input (no infinite loop) */
+        if (status == 0)                               /* FIX: letters or symbols no longer loop forever */
+        {
+            printf("\n Invalid input. Please enter a number.");
+            continue;
+        }
+
+        switch (option)
+        {
+        case 1:
+            status = readInt("\n Enter the value of the new node : ", &val);
+            if (status == 1) tree = insertElement(tree, val);
+            else if (status == 0) printf("\n Invalid input. Node not added.");
+            else option = 14;
+            break;
+        case 2:
+            if (tree == NULL) printf("\n The tree is empty");   /* FIX: empty-tree check */
+            else { printf("\n The elements of the tree are : \n"); preorderTraversal(tree); }
+            break;
+        case 3:
+            if (tree == NULL) printf("\n The tree is empty");
+            else { printf("\n The elements of the tree are : \n"); inorderTraversal(tree); }
+            break;
+        case 4:
+            if (tree == NULL) printf("\n The tree is empty");
+            else { printf("\n The elements of the tree are : \n"); postorderTraversal(tree); }
+            break;
+        case 5:
+            ptr = findSmallestElement(tree);
+            if (ptr == NULL) printf("\n The tree is empty");   /* FIX: no NULL dereference */
+            else printf("\n Smallest element is : %d", ptr->data);
+            break;
+        case 6:
+            ptr = findLargestElement(tree);
+            if (ptr == NULL) printf("\n The tree is empty");   /* FIX: no NULL dereference */
+            else printf("\n Largest element is : %d", ptr->data);
+            break;
+        case 7:
+            if (tree == NULL) { printf("\n The tree is empty"); break; }
+            status = readInt("\n Enter the element to be deleted : ", &val);
+            if (status == 1)
+            {
+                before = totalNodes(tree);
+                tree = deleteElement(tree, val);
+                if (totalNodes(tree) < before) printf("\n %d deleted", val);
+            }
+            else if (status == 0) printf("\n Invalid input. Nothing deleted.");
+            else option = 14;
+            break;
+        case 8:
+            printf("\n Total no. of nodes = %d", totalNodes(tree));
+            break;
+        case 9:
+            printf("\n Total no. of external nodes = %d", totalExternalNodes(tree));
+            break;
+        case 10:
+            printf("\n Total no. of internal nodes = %d", totalInternalNodes(tree));
+            break;
+        case 11:
+            printf("\n The height of the tree = %d", Height(tree));
+            break;
+        case 12:
+            tree = mirrorImage(tree);
+            mirrored = !mirrored;   /* FIX: later inserts and searches follow the flipped rule */
+            printf("\n Tree mirrored");
+            break;
+        case 13:
+            tree = deleteTree(tree);   /* FIX: deleteTree now returns NULL, so no dangling pointer */
+            mirrored = 0;
+            printf("\n Tree deleted");
+            break;
+        case 14:
+            break;
+        default:   /* FIX: invalid menu numbers are reported */
+            printf("\n Invalid option. Choose a number from 1 to 14.");
+        }
+    }
+    tree = deleteTree(tree);   /* FIX: free all memory before exiting (no leak) */
+    printf("\n Goodbye!\n");
+    return 0;
+}
+
+/* Reads one integer. Returns 1 = ok, 0 = bad input (discarded), -1 = end of input */
+int readInt(const char *prompt, int *out)
+{
+    int c;
+    printf("%s", prompt);
+    if (scanf("%d", out) == 1) return 1;
+    if (feof(stdin)) return -1;
+    while ((c = getchar()) != '\n' && c != EOF) ;   /* throw away the bad characters */
+    return 0;
+}
+
+/* Smaller values go left in a normal tree. After mirroring, the rule is reversed. */
+int goLeft(int val, int data)
+{
+    return mirrored ? (val > data) : (val < data);
+}
+
+struct node *insertElement(struct node *root, int val)
+{
+    struct node *ptr, *nodeptr, *parentptr;
+    ptr = (struct node *)malloc(sizeof(struct node));
+    if (ptr == NULL)   /* FIX: check that malloc worked */
+    {
+        printf("\n Memory allocation failed");
+        return root;
+    }
+    ptr->data = val;
+    ptr->left = NULL;
+    ptr->right = NULL;
+    if (root == NULL)
+        return ptr;
+    parentptr = NULL;
+    nodeptr = root;
+    while (nodeptr != NULL)
+    {
+        parentptr = nodeptr;
+        nodeptr = goLeft(val, nodeptr->data) ? nodeptr->left : nodeptr->right;
+    }
+    if (goLeft(val, parentptr->data)) parentptr->left = ptr;
+    else parentptr->right = ptr;
+    return root;
+}
+
+void preorderTraversal(struct node *root)
+{
+    if (root != NULL)
+    {
+        printf("%d\t", root->data);
+        preorderTraversal(root->left);
+        preorderTraversal(root->right);
+    }
+}
+
+void inorderTraversal(struct node *root)
+{
+    if (root != NULL)
+    {
+        inorderTraversal(root->left);
+        printf("%d\t", root->data);
+        inorderTraversal(root->right);
+    }
+}
+
+void postorderTraversal(struct node *root)
+{
+    if (root != NULL)
+    {
+        postorderTraversal(root->left);
+        postorderTraversal(root->right);
+        printf("%d\t", root->data);
+    }
+}
+
+/* Smallest value: leftmost node, or rightmost node if the tree is mirrored */
+struct node *findSmallestElement(struct node *root)
+{
+    struct node *next;
+    if (root == NULL) return NULL;
+    next = mirrored ? root->right : root->left;
+    if (next == NULL) return root;
+    return findSmallestElement(next);
+}
+
+/* Largest value: rightmost node, or leftmost node if the tree is mirrored */
+struct node *findLargestElement(struct node *root)
+{
+    struct node *next;
+    if (root == NULL) return NULL;
+    next = mirrored ? root->left : root->right;
+    if (next == NULL) return root;
+    return findLargestElement(next);
+}
+
+/* FIX: recursive version. Handles the root, no uninitialised pointers, no header node needed */
+struct node *deleteElement(struct node *root, int val)
+{
+    struct node *tmp, *rep;
+    if (root == NULL)
+    {
+        printf("\n The value to be deleted is not present in the tree");
+        return NULL;
+    }
+    if (val == root->data)
+    {
+        if (root->left == NULL)        /* 0 or 1 child: the child takes its place */
+        {
+            tmp = root->right;
+            free(root);
+            return tmp;
+        }
+        if (root->right == NULL)
+        {
+            tmp = root->left;
+            free(root);
+            return tmp;
+        }
+        /* 2 children: copy the closest value from the right subtree, then delete that node */
+        rep = mirrored ? findLargestElement(root->right) : findSmallestElement(root->right);
+        root->data = rep->data;
+        root->right = deleteElement(root->right, rep->data);
+    }
+    else if (goLeft(val, root->data))
+        root->left = deleteElement(root->left, val);
+    else
+        root->right = deleteElement(root->right, val);
+    return root;
+}
+
+int totalNodes(struct node *root)
+{
+    if (root == NULL) return 0;
+    return totalNodes(root->left) + totalNodes(root->right) + 1;
+}
+
+int totalExternalNodes(struct node *root)
+{
+    if (root == NULL) return 0;
+    if (root->left == NULL && root->right == NULL) return 1;
+    return totalExternalNodes(root->left) + totalExternalNodes(root->right);
+}
+
+int totalInternalNodes(struct node *root)
+{
+    if (root == NULL || (root->left == NULL && root->right == NULL)) return 0;
+    return totalInternalNodes(root->left) + totalInternalNodes(root->right) + 1;
+}
+
+int Height(struct node *root)
+{
+    int leftheight, rightheight;
+    if (root == NULL) return 0;
+    leftheight = Height(root->left);
+    rightheight = Height(root->right);
+    return (leftheight > rightheight ? leftheight : rightheight) + 1;
+}
+
+/* FIX: proper swap with a temp, safe for NULL children, and it returns the root */
+struct node *mirrorImage(struct node *root)
+{
+    struct node *tmp;
+    if (root == NULL) return NULL;
+    tmp = root->left;
+    root->left = mirrorImage(root->right);
+    root->right = mirrorImage(tmp);
+    return root;
+}
+
+/* FIX: returns NULL so the caller's root pointer is cleared */
+struct node *deleteTree(struct node *root)
+{
+    if (root != NULL)
+    {
+        deleteTree(root->left);
+        deleteTree(root->right);
+        free(root);
+    }
+    return NULL;
+}</script>
+<script>
+const F=[
+{t:"Structure & globals",s:"struct node, tree, mirrored",c:`#include <stdio.h>
+#include <stdlib.h>
+
+struct node
+{
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+struct node *tree = NULL;
+int mirrored = 0;`,
+p:[["#include <stdlib.h>","Gives malloc() and free(). Unlike conio.h and malloc.h, it works on every compiler and operating system."],["struct node *left;","A pointer to the same struct type. This self-reference lets nodes chain into a tree. Smaller values go left, larger go right."],["struct node *tree = NULL;","Global pointer to the root. NULL means an empty tree. Starting it as NULL here means no separate create function is needed."],["int mirrored = 0;","Remembers whether the tree has been mirrored. After a mirror, the left/right rule is reversed, and this flag keeps insert, delete, smallest and largest correct."]]},
+{t:"main() – the menu loop",s:"while + switch",c:`int main(void)
+{
+    int option = 0, val, before, status;
+    struct node *ptr;
+
+    while (option != 14)
+    {
+        /* print the menu */
+        status = readInt("\\n\\n Enter your option : ", &option);
+        if (status == -1) { option = 14; continue; }
+        if (status == 0)
+        {
+            printf("\\n Invalid input. Please enter a number.");
+            continue;
+        }
+        switch (option)
+        {
+        case 1:
+            status = readInt("\\n Enter the value of the new node : ", &val);
+            if (status == 1) tree = insertElement(tree, val);
+            else if (status == 0) printf("\\n Invalid input. Node not added.");
+            else option = 14;
+            break;
+        case 5:
+            ptr = findSmallestElement(tree);
+            if (ptr == NULL) printf("\\n The tree is empty");
+            else printf("\\n Smallest element is : %d", ptr->data);
+            break;
+        case 12:
+            tree = mirrorImage(tree);
+            mirrored = !mirrored;
+            break;
+        case 13:
+            tree = deleteTree(tree);
+            mirrored = 0;
+            break;
+        case 14: break;
+        default:
+            printf("\\n Invalid option. Choose a number from 1 to 14.");
+        }
+    }
+    tree = deleteTree(tree);
+    return 0;
+}`,
+p:[["int option = 0","The variable starts with a known value, so the loop condition never reads garbage."],["while (option != 14)","The menu repeats until the user picks Exit (14)."],["status == -1 / status == 0","readInt reports end of input (-1) or a bad entry such as a letter (0). Both are handled, so the program can never get stuck in an endless loop."],["tree = insertElement(tree, val);","The root may change on the first insert, so the returned pointer is stored back into tree."],["if (ptr == NULL)","The smallest and largest options check for an empty tree before using ptr->data, which prevents a crash."],["mirrored = !mirrored;","Flips the flag each time the tree is mirrored, so the rest of the program knows which way the tree currently leans."],["tree = deleteTree(tree);","After the loop, every node is freed before the program ends, so no memory is leaked."]]},
+{t:"readInt() & goLeft()",s:"safe input, direction rule",c:`int readInt(const char *prompt, int *out)
+{
+    int c;
+    printf("%s", prompt);
+    if (scanf("%d", out) == 1) return 1;
+    if (feof(stdin)) return -1;
+    while ((c = getchar()) != '\\n' && c != EOF) ;
+    return 0;
+}
+
+int goLeft(int val, int data)
+{
+    return mirrored ? (val > data) : (val < data);
+}`,
+p:[["scanf(\"%d\", out) == 1","scanf returns how many values it read. 1 means a valid integer was entered."],["while ((c = getchar()) != '\\n' && c != EOF) ;","Throws away the rest of a bad line (for example the letters typed instead of a number) so the next prompt starts clean."],["return mirrored ? (val > data) : (val < data);","In a normal tree smaller values go left. In a mirrored tree the rule is reversed. Insert and delete both call this one function, so they always agree."]]},
+{t:"insertElement()",s:"add a node",c:`struct node *insertElement(struct node *root, int val)
+{
+    struct node *ptr, *nodeptr, *parentptr;
+    ptr = (struct node *)malloc(sizeof(struct node));
+    if (ptr == NULL)
+    {
+        printf("\\n Memory allocation failed");
+        return root;
+    }
+    ptr->data = val;
+    ptr->left = NULL;
+    ptr->right = NULL;
+    if (root == NULL)
+        return ptr;
+    parentptr = NULL;
+    nodeptr = root;
+    while (nodeptr != NULL)
+    {
+        parentptr = nodeptr;
+        nodeptr = goLeft(val, nodeptr->data) ? nodeptr->left : nodeptr->right;
+    }
+    if (goLeft(val, parentptr->data)) parentptr->left = ptr;
+    else parentptr->right = ptr;
+    return root;
+}`,
+p:[["malloc(sizeof(struct node))","Reserves memory for one node on the heap, so it survives after the function returns."],["if (ptr == NULL)","malloc returns NULL when memory runs out. Checking it prevents a crash."],["ptr->left = NULL; ptr->right = NULL;","A new node is always a leaf, so both children start as NULL."],["if (root == NULL) return ptr;","Empty tree: the new node simply becomes the root."],["parentptr = nodeptr;","Remembers the last node visited. When nodeptr falls off the tree (NULL), parentptr is the node the new one attaches to."],["goLeft(val, nodeptr->data)","BST rule: smaller goes left, otherwise right. Equal values go right."]]},
+{t:"Traversals",s:"pre / in / post",c:`void preorderTraversal(struct node *root)
+{
+    if (root != NULL)
+    {
+        printf("%d\\t", root->data);
+        preorderTraversal(root->left);
+        preorderTraversal(root->right);
+    }
+}
+/* inorder:   left, print, right */
+/* postorder: left, right, print */`,
+p:[["if (root != NULL)","Base case. Recursion stops when it reaches an empty subtree."],["Position of printf","Preorder prints before the children (Root, L, R). Inorder prints between them (L, Root, R) and gives sorted output for a normal BST. Postorder prints after (L, R, Root)."],["Empty tree","main() prints \"The tree is empty\" before calling a traversal, so nothing confusing is shown."]]},
+{t:"findSmallest / findLargest",s:"extreme nodes",c:`struct node *findSmallestElement(struct node *root)
+{
+    struct node *next;
+    if (root == NULL) return NULL;
+    next = mirrored ? root->right : root->left;
+    if (next == NULL) return root;
+    return findSmallestElement(next);
+}
+
+struct node *findLargestElement(struct node *root)
+{
+    struct node *next;
+    if (root == NULL) return NULL;
+    next = mirrored ? root->left : root->right;
+    if (next == NULL) return root;
+    return findLargestElement(next);
+}`,
+p:[["if (root == NULL) return NULL;","An empty tree has no smallest element. The caller checks for NULL."],["next = mirrored ? root->right : root->left;","In a normal tree the smallest value is at the far left. After mirroring it is at the far right."],["if (next == NULL) return root;","No further node in that direction, so this node is the answer."],["findLargestElement","Same idea in the opposite direction: far right normally, far left when mirrored."]]},
+{t:"deleteElement()",s:"3 cases, recursive",c:`struct node *deleteElement(struct node *root, int val)
+{
+    struct node *tmp, *rep;
+    if (root == NULL)
+    {
+        printf("\\n The value to be deleted is not present in the tree");
+        return NULL;
+    }
+    if (val == root->data)
+    {
+        if (root->left == NULL)
+        {
+            tmp = root->right;
+            free(root);
+            return tmp;
+        }
+        if (root->right == NULL)
+        {
+            tmp = root->left;
+            free(root);
+            return tmp;
+        }
+        rep = mirrored ? findLargestElement(root->right)
+                       : findSmallestElement(root->right);
+        root->data = rep->data;
+        root->right = deleteElement(root->right, rep->data);
+    }
+    else if (goLeft(val, root->data))
+        root->left = deleteElement(root->left, val);
+    else
+        root->right = deleteElement(root->right, val);
+    return root;
+}`,
+p:[["if (root == NULL)","Reached an empty spot without finding the value, so it is not in the tree."],["root->left = deleteElement(root->left, val);","Each recursive call returns the new root of that subtree, which is linked back. This handles every position, including the root, without a parent pointer."],["if (root->left == NULL)","Case 1 and 2 (no child, or one child): the child (or NULL) takes the deleted node’s place."],["free(root);","Releases the removed node’s memory. The child pointer is saved in tmp first, because root cannot be used after free."],["rep = ... findSmallestElement(root->right)","Case 3 (two children): pick the closest value from the right subtree (the inorder successor)."],["root->right = deleteElement(root->right, rep->data);","Copy the successor’s value up, then delete the successor node, which has at most one child."]]},
+{t:"Counting & Height",s:"nodes, leaves, internal, height",c:`int totalNodes(struct node *root)
+{
+    if (root == NULL) return 0;
+    return totalNodes(root->left) + totalNodes(root->right) + 1;
+}
+
+int totalExternalNodes(struct node *root)
+{
+    if (root == NULL) return 0;
+    if (root->left == NULL && root->right == NULL) return 1;
+    return totalExternalNodes(root->left) + totalExternalNodes(root->right);
+}
+
+int totalInternalNodes(struct node *root)
+{
+    if (root == NULL || (root->left == NULL && root->right == NULL)) return 0;
+    return totalInternalNodes(root->left) + totalInternalNodes(root->right) + 1;
+}
+
+int Height(struct node *root)
+{
+    int leftheight, rightheight;
+    if (root == NULL) return 0;
+    leftheight = Height(root->left);
+    rightheight = Height(root->right);
+    return (leftheight > rightheight ? leftheight : rightheight) + 1;
+}`,
+p:[["+ 1","Counts the current node on top of everything in both subtrees."],["External nodes","Leaves: both children are NULL, so return 1."],["Internal nodes","Non-leaves: 0 for NULL or a leaf, otherwise left + right + 1."],["Height","Takes the taller subtree and adds 1. An empty tree is 0, a single node is 1."]]},
+{t:"mirrorImage()",s:"swap children",c:`struct node *mirrorImage(struct node *root)
+{
+    struct node *tmp;
+    if (root == NULL) return NULL;
+    tmp = root->left;
+    root->left = mirrorImage(root->right);
+    root->right = mirrorImage(tmp);
+    return root;
+}`,
+p:[["if (root == NULL) return NULL;","Base case. An empty subtree mirrors to itself, which also keeps NULL children safe."],["tmp = root->left;","Saves the left child before it is overwritten. This is the temp used in a classic swap."],["root->left = mirrorImage(root->right);","The mirrored right subtree becomes the new left subtree."],["root->right = mirrorImage(tmp);","The mirrored old left subtree becomes the new right subtree."],["return root;","Returns the root so tree = mirrorImage(tree) keeps a valid pointer."]]},
+{t:"deleteTree()",s:"post-order free",c:`struct node *deleteTree(struct node *root)
+{
+    if (root != NULL)
+    {
+        deleteTree(root->left);
+        deleteTree(root->right);
+        free(root);
+    }
+    return NULL;
+}`,
+p:[["Order of the calls","Postorder: the children are freed first. If the root were freed first, the pointers to its children would be lost."],["return NULL;","So tree = deleteTree(tree) sets the root to NULL and never leaves a dangling pointer."]]}
+];
+const box=document.getElementById("fns");
+F.forEach((f,i)=>{
+ const d=document.createElement("details");d.className="fn";d.style.animationDelay=i*60+"ms";
+ const s=document.createElement("summary");s.innerHTML=`${i+1}. ${f.t}<small>${f.s}</small>`;
+ const b=document.createElement("div");b.className="body";
+ const pre=document.createElement("pre");pre.textContent=f.c;b.append(pre);
+ if(f.w){const w=document.createElement("div");w.className="warn";w.textContent="⚠ "+f.w;b.append(w)}
+ const h=document.createElement("div");h.style.cssText="color:var(--mut);font-size:.85rem";h.textContent="Critical lines (tap to explain)";b.append(h);
+ f.p.forEach(([l,e])=>{const q=document.createElement("details");q.className="pt";
+  const qs=document.createElement("summary");const c=document.createElement("code");c.textContent=l;qs.append(c);
+  const qd=document.createElement("div");qd.textContent=e;q.append(qs,qd);b.append(q)});
+ d.append(s,b);box.append(d)});
+
+// ---- layout: inline / panel ----
+const nav=document.getElementById("nav"),pc=document.getElementById("pc");
+F.forEach((f,i)=>{const b=document.createElement("button");b.textContent=(i+1)+". "+f.t;b.onclick=()=>sel(i);nav.append(b)});
+function sel(i){[...nav.children].forEach((b,j)=>b.classList.toggle("on",i===j));
+ pc.innerHTML="";const t=document.createElement("h3");t.textContent=F[i].t;
+ pc.append(t,box.children[i].querySelector(".body").cloneNode(true));
+ pc.style.animation="none";void pc.offsetWidth;pc.style.animation=""}
+function setLayout(m){document.body.classList.toggle("pm",m==="panel");
+ document.getElementById("b-in").classList.toggle("on",m==="inline");
+ document.getElementById("b-pa").classList.toggle("on",m==="panel")}
+sel(0);
+const fx=document.getElementById("fix").textContent;
+document.getElementById("fullcode").textContent=fx;
+const vn=document.getElementById("vnote");vn.className="warn ok";vn.textContent="✔ Bug-free version. Comments marked FIX point out the safety checks and corrections.";
+function cp(b){navigator.clipboard.writeText(document.getElementById("fix").textContent).then(()=>{b.textContent="Copied ✓";setTimeout(()=>b.textContent="Copy code",1500)},()=>{b.textContent="Copy failed"})}
+
+// ---- live tree ----
+let root=null,nid=0,busy=false,mirrored=false;
+const goL=(v,d)=>mirrored?v>d:v<d;
+const svg=document.getElementById("svg"),out=document.getElementById("out"),NS="http://www.w3.org/2000/svg";
+const els=new Map();
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function say(t){out.textContent=t}
+function h(n){return n?1+Math.max(h(n.l),h(n.r)):0}
+function cnt(n){return n?1+cnt(n.l)+cnt(n.r):0}
+function leaves(n){return !n?0:(!n.l&&!n.r)?1:leaves(n.l)+leaves(n.r)}
+function render(newId){
+ const pos=new Map();let k=0;
+ (function go(n,d){if(!n)return;go(n.l,d+1);pos.set(n.id,[40+k*46,35+d*62]);k++;go(n.r,d+1)})(root,0);
+ const W=Math.max(300,k*46+40),H=Math.max(150,h(root)*62+30);
+ svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.setAttribute("height",H);svg.style.width=W>300?W+"px":"100%";
+ svg.querySelectorAll(".edge").forEach(e=>e.remove());
+ for(const [id,g] of els)if(!pos.has(id)){g.remove();els.delete(id)}
+ const all=[];(function c(n){if(n){all.push(n);c(n.l);c(n.r)}})(root);
+ all.forEach(n=>{const p=pos.get(n.id);
+  if(n.l)edge(p,pos.get(n.l.id));if(n.r)edge(p,pos.get(n.r.id))});
+ all.forEach(n=>{const p=pos.get(n.id);let g=els.get(n.id);
+  if(!g){g=document.createElementNS(NS,"g");g.setAttribute("class","nd"+(n.id===newId?" pop":""));
+   g.innerHTML=`<circle r="19"></circle><text>${n.v}</text>`;g.style.transform=`translate(${p[0]}px,${p[1]}px)`;svg.append(g);els.set(n.id,g)}
+  else requestAnimationFrame(()=>g.style.transform=`translate(${p[0]}px,${p[1]}px)`);
+  g.style.transform=`translate(${p[0]}px,${p[1]}px)`;n.g=g});
+ document.getElementById("st").textContent=`Nodes: ${cnt(root)} | External (leaves): ${leaves(root)} | Internal: ${cnt(root)-leaves(root)} | Height: ${h(root)}`;
+}
+function edge(a,b){const l=document.createElementNS(NS,"line");l.setAttribute("class","edge");
+ l.setAttribute("x1",a[0]);l.setAttribute("y1",a[1]);l.setAttribute("x2",b[0]);l.setAttribute("y2",b[1]);svg.prepend(l)}
+async function flash(n,ms=500){n.g.classList.add("hl");await sleep(ms);n.g.classList.remove("hl")}
+async function add(v){
+ const n={v,id:nid++,l:null,r:null};
+ if(!root){root=n;say("Tree was empty, so "+v+" becomes the root.");render(n.id);return}
+ let c=root,p=null,path=[];
+ while(c){p=c;path.push(c);await flash(c,350);
+  say(`${v} ${goL(v,c.v)?(mirrored?">":"<"):(mirrored?"≤":"≥")} ${c.v} → go ${goL(v,c.v)?"left":"right"}`);c=goL(v,c.v)?c.l:c.r}
+ if(goL(v,p.v))p.l=n;else p.r=n;
+ say(`Found NULL spot: ${v} attached as ${goL(v,p.v)?"left":"right"} child of ${p.v}.`);render(n.id)}
+async function ins(){if(busy)return;const i=document.getElementById("v");if(i.value==="")return say("Enter a value first.");
+ busy=true;await add(+i.value);i.value="";busy=false}
+async function rnd(){if(busy)return;busy=true;for(let i=0;i<7;i++){await add(1+Math.floor(Math.random()*99));await sleep(250)}busy=false}
+async function trav(t){if(busy)return;if(!root)return say("The tree is empty.");busy=true;const seq=[];
+ (function g(n){if(!n)return;if(t=="pre")seq.push(n);g(n.l);if(t=="in")seq.push(n);g(n.r);if(t=="post")seq.push(n)})(root);
+ let o=[];for(const n of seq){o.push(n.v);say({pre:"Preorder (Root, L, R): ",in:"Inorder (L, Root, R): ",post:"Postorder (L, R, Root): "}[t]+o.join("  "));await flash(n,550)}busy=false}
+async function ext(w){if(busy)return;if(!root)return say("The tree is empty.");busy=true;let c=root;
+ while(true){await flash(c,400);const nx=(w=="min")!==mirrored?c.l:c.r;if(!nx)break;c=nx}
+ c.g.classList.add("hl");say((w=="min"?"Smallest":"Largest")+" element is: "+c.v);await sleep(1000);c.g.classList.remove("hl");busy=false}
+function mir(){if(busy)return;mirrored=!mirrored;(function m(n){if(!n)return;[n.l,n.r]=[n.r,n.l];m(n.l);m(n.r)})(root);say("Mirror image: every node’s children swapped.");render()}
+function clr(){if(busy)return;root=null;mirrored=false;render();say("Tree deleted. Memory freed, root is NULL.")}
+document.getElementById("v").addEventListener("keydown",e=>{if(e.key==="Enter")ins()});
+function tg(){const r=document.documentElement,d=matchMedia("(prefers-color-scheme:dark)").matches;
+ const cur=r.dataset.theme||(d?"dark":"light");r.dataset.theme=cur=="dark"?"light":"dark"}
+render();
+</script></body></html>
